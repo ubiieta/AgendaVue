@@ -1,0 +1,168 @@
+/* Estilos generales */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #4d4a6e;
+    color: #333;
+    line-height: 1.6;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+h2 {
+    font-size: 36px;
+    color: #333;
+    font-weight: bold;
+}
+
+p {
+    font-size: 16px;
+    color: #666;
+}
+
+/* Header */
+header {
+    background: #4d4a6e;
+    color: #fff;
+    padding: 33px 0;
+    text-align: center;
+}
+
+header .intro-text {
+    font-size: 32px;
+}
+
+header .name {
+    font-size: 48px;
+    font-weight: bold;
+}
+
+/* Sección de contactos */
+#contactos {
+    padding: 60px 0;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Contenedor de la tabla */
+.table-container {
+    width: 60%; /* La tabla ocupa el 80% del ancho del contenedor */
+    margin-bottom: 30px; /* Separación con el formulario */
+}
+
+/* Estilo general para la tabla */
+table {
+    width: 100%; /* La tabla ocupa todo el ancho del contenedor */
+    border-collapse: collapse;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Estilo para las cabeceras de la tabla */
+th {
+    background-color: #4d4a6e;
+    color: white;
+    text-align: left;
+    padding: 12px;
+    font-weight: bold;
+}
+
+/* Estilo para las celdas de la tabla */
+td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Estilo para la fila al pasar el cursor (hover) */
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Estilo para los botones de eliminar */
+button.btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+/* Estilo para los iconos de eliminar */
+button.btn img {
+    width: 20px;
+    height: 20px;
+}
+
+/* Estilo para las filas alternadas (zebra striping) */
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+/* Contenedor del formulario */
+.form-container {
+    width: 20%;  
+    background-color: #fff;
+    border-collapse: collapse;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    padding: 20px;
+}
+
+/* Estilo para las filas del formulario */
+.form-container .form-row {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+.form-container .form-row:last-child {
+    border-bottom: none;
+}
+
+/* Estilo para los labels y los inputs */
+.form-container label {
+    flex: 1;
+    padding-top: 10px;
+    color: #4d4a6e;
+    font-weight: bold;
+    margin-right: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.form-container input {
+    flex: 2;
+    width:100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+/* Botón de añadir contacto */
+.form-container .btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #4d4a6e;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    border-radius: 8px;
+}
+
+.form-container .btn:hover {
+    background-color: #385740;
+}

@@ -8,33 +8,48 @@
         <meta name="author" content="e-ghost 2019">
         <title>AgendaVue</title>
 
-        
-        <!-- Referencia al archivo CSS -->
-        <link rel="stylesheet" href="style.css">
-    
-        <!-- Vue.js -->
-        <script type="text/javascript" src="js/vue.js"></script>
+    <!-- Referencia al archivo CSS -->
+    <link rel="stylesheet" href="style.css">
 
-    </head>
+    <!-- Vue.js (puedes usar CDN si no lo tienes en tu proyecto local) -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
 
-    <body id="page-top" class="index">
-        <div id="app">
-        
+    <!-- Firebase y Firestore desde CDN -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCHTCjVWRmVx_AW6CeKLxoeQGfHvhFMoaI",
+            authDomain: "agendavue-7bb62.firebaseapp.com",
+            projectId: "agendavue-7bb62",
+            storageBucket: "agendavue-7bb62.firebasestorage.app",
+            messagingSenderId: "40314208916",
+            appId: "1:40314208916:web:c32fb6f2acf6b1bfb02a81"
+        };
+
+        // Inicializa Firebase y Firestore
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Exporta db para usarlo en Vue
+        window.db = db;
+    </script>
+</head>
+
+<body id="page-top" class="index">
+    <div id="app">
         <!-- Header -->
         <header>
-        
             <div class="intro-text">
                 <span class="name">MI AGENDA VUE</span>
+                <button @click="probarConexion" class="btn btn-primary">Probar Conexión</button>
             </div>
-            
         </header>
-            
-                    
+
         <!-- Sección de Contactos -->
         <section id="contactos">
-
-
             <!-- Formulario de añadir contacto -->
             <div class="form-container">
                 <form @submit.prevent="agregarContacto">
@@ -59,11 +74,8 @@
                 </form>
             </div>
 
-                <br><br>
+            <br><br>
 
-            
-
-    
             <!-- Contenedor de la tabla -->
             <div class="table-container">
                 <table class="table table-striped">
@@ -73,19 +85,18 @@
                             <th>Email</th>
                             <th>Teléfono</th>
                             <th>Twitter</th>
-                           
+                            <th>Facebook</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(contacto, index) in contactos" :key="index">
+                        <tr v-for="contacto in contactos" :key="contacto.id">
                             <td>{{ contacto.nombre }}</td>
                             <td>{{ contacto.email }}</td>
                             <td>{{ contacto.telefono }}</td>
                             <td v-html="contacto.twitter"></td>
-                            
                             <td>
-                                <button class="btn btn-danger btn-sm" @click="borrarContacto(index)">
+                                <button class="btn btn-danger btn-sm" @click="borrarContacto(contacto.id)">
                                     <img src="img/eliminar.png" alt="Eliminar" width="20" height="20">
                                 </button>
                             </td>
@@ -93,95 +104,98 @@
                     </tbody>
                 </table>
             </div>
-
-            
         </section>
+    </div>
 
-        
-    
-    
-            
-    
-        </div>
+    <!-- jQuery -->
+    <script src="js/jquery.js"></script>
 
-        <!-- jQuery -->
-        <script src="js/jquery.js"></script>
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
 
-        <!-- Bootstrap Core JavaScript -->
-        <script src="js/bootstrap.min.js"></script>
-
-        <!-- Plugin JavaScript -->
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
-        <script src="js/classie.js"></script>
-        <script src="js/cbpAnimatedHeader.js"></script>
-
-        <!-- Custom Theme JavaScript -->
-        <script src="js/freelancer.js"></script>
-
-        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-
-        <script type="text/javascript">
-            new Vue({
-                el: '#app',
-                data: {
-                    contactos: [
-                        { 
-                            nombre: 'Aitor', 
-                            email: 'a.ubieta@opendeusto.es', 
-                            telefono: '333333333', 
-                            twitter: '<a class="twitter-follow-button" href="https://twitter.com/ubiieta" target="_blank"></a>' 
-                        },
-                        { nombre: 'Eneko', email: 'eneko.alvarez@opendeusto.es', telefono: '444444444', twitter: '' },
-                        { nombre: 'Oihane', email: 'oihane.carrillo@opendeusto.es', telefono: '555555555', 
-                            twitter:  '<a class="twitter-follow-button" href="https://twitter.com/oicaher" target="_blank"></a>' },
-                        { nombre: 'Maialen', email: 'maialen.blanco@opendeusto.es', telefono: '666666666', twitter: '' }
-                    ],
-                    nuevoContacto: {
-                        nombre: '',
-                        email: '',
-                        telefono: '',
-                        twitter: ''
+    <!-- Vue.js y el código de la app -->
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                contactos: [], // Lista de contactos
+                nuevoContacto: {
+                    nombre: '',
+                    email: '',
+                    telefono: '',
+                    twitter: ''
+                }
+            },
+            methods: {
+                async cargarContactos() {
+                    try {
+                        // Obtiene los contactos desde Firestore
+                        const querySnapshot = await getDocs(collection(window.db, 'contactos'));
+                        this.contactos = querySnapshot.docs.map(doc => ({
+                            id: doc.id, // ID del documento
+                            ...doc.data() // Datos del contacto
+                        }));
+                    } catch (error) {
+                        console.error('Error al cargar los contactos:', error);
                     }
                 },
-                methods: {
-                    agregarContacto() {
-
-                        // Elimina el @ si está presente y genera el enlace de Twitter
-                        let twitterHandle = this.nuevoContacto.twitter.replace('@', '').trim();
-                        let twitterLink = twitterHandle 
-                            ? `<a class="twitter-follow-button" href="https://twitter.com/${twitterHandle}" target="_blank"></a>` 
+                async agregarContacto() {
+                    try {
+                        // Crea el enlace de Twitter si es necesario
+                        const twitterHandle = this.nuevoContacto.twitter.replace('@', '').trim();
+                        const twitterLink = twitterHandle
+                            ? `<a class="twitter-follow-button" href="https://twitter.com/${twitterHandle}" target="_blank"></a>`
                             : '';
 
-
-                        // Recarga los botones
-                        twttr.widgets.load()
-
-
-
-                        // Añadir el contacto
-                        this.contactos.push({
+                        // Añade un nuevo contacto a Firestore
+                        await addDoc(collection(window.db, 'contactos'), {
                             nombre: this.nuevoContacto.nombre,
                             email: this.nuevoContacto.email,
                             telefono: this.nuevoContacto.telefono,
                             twitter: twitterLink
                         });
 
-                        // Limpiar el formulario
-                        this.nuevoContacto.nombre = '';
-                        this.nuevoContacto.email = '';
-                        this.nuevoContacto.telefono = '';
-                        this.nuevoContacto.twitter = '';
-                    },
-                    borrarContacto(index) {
-                        this.contactos.splice(index, 1);
-                        // Recarga los botones
-                        twttr.widgets.load()
+                        // Recarga la lista de contactos
+                        this.cargarContactos();
+
+                        // Limpia el formulario
+                        this.nuevoContacto = { nombre: '', email: '', telefono: '', twitter: '' };
+                    } catch (error) {
+                        console.error('Error al agregar el contacto:', error);
+                    }
+                },
+                async borrarContacto(contactoId) {
+                    try {
+                        // Borra el contacto de Firestore
+                        await deleteDoc(doc(window.db, 'contactos', contactoId));
+
+                        // Recarga la lista de contactos
+                        this.cargarContactos();
+                    } catch (error) {
+                        console.error('Error al borrar el contacto:', error);
+                    }
+                },
+                async probarConexion() {
+                    try {
+                        const querySnapshot = await getDocs(collection(window.db, 'contactos'));
+                        console.log('Conexión exitosa. Datos obtenidos:');
+                        querySnapshot.forEach(doc => {
+                            console.log(doc.id, ' => ', doc.data());
+                        });
+                        alert('Conexión con Firestore exitosa. Revisa la consola para ver los datos.');
+                    } catch (error) {
+                        console.error('Error al conectar con Firestore:', error);
+                        alert('Error al conectar con Firestore. Verifica la configuración.');
                     }
                 }
-            });
-        </script>
+            },
+            mounted() {
+                // Carga los contactos cuando la aplicación Vue esté lista
+                this.cargarContactos();
+            }
+        });
+    </script>
 
-
-    </body>
+</body>
 
 </html>

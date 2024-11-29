@@ -70,7 +70,8 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Nombre</th>
+                            <th>Nombre</th> 
+                            <th>Apellido</th>
                             <th>Email</th>
                             <th>Teléfono</th>
                             <th>Twitter</th>
@@ -81,6 +82,7 @@
                     <tbody>
                         <tr v-for="(contacto, index) in contactos" :key="index">
                             <td>{{ contacto.nombre }}</td>
+                            <td>{{ contacto.apellido }}</td>
                             <td>{{ contacto.email }}</td>
                             <td>{{ contacto.telefono }}</td>
                             <td v-html="contacto.twitter"></td>
@@ -128,17 +130,19 @@
                     contactos: [
                         { 
                             nombre: 'Aitor', 
+                            apellido: 'Ubieta',
                             email: 'a.ubieta@opendeusto.es', 
                             telefono: '333333333', 
                             twitter: '<a class="twitter-follow-button" href="https://twitter.com/ubiieta" target="_blank"></a>' 
                         },
-                        { nombre: 'Eneko', email: 'eneko.alvarez@opendeusto.es', telefono: '444444444', twitter: '' },
-                        { nombre: 'Oihane', email: 'oihane.carrillo@opendeusto.es', telefono: '555555555', 
+                        { nombre: 'Eneko',apellido: 'Alvarez', email: 'eneko.alvarez@opendeusto.es', telefono: '444444444', twitter: '' },
+                        { nombre: 'Oihane',apellido : 'Carrillo' ,email: 'oihane.carrillo@opendeusto.es', telefono: '555555555', 
                             twitter:  '<a class="twitter-follow-button" href="https://twitter.com/oicaher" target="_blank"></a>' },
-                        { nombre: 'Maialen', email: 'maialen.blanco@opendeusto.es', telefono: '666666666', twitter: '' }
+                        { nombre: 'Maialen', apellido: 'Blanco',email: 'maialen.blanco@opendeusto.es', telefono: '666666666', twitter: '' }
                     ],
                     nuevoContacto: {
                         nombre: '',
+                        apellido: '',
                         email: '',
                         telefono: '',
                         twitter: ''
@@ -163,12 +167,14 @@
                         this.contactos.push({
                             nombre: this.nuevoContacto.nombre,
                             email: this.nuevoContacto.email,
+                            apellido: this.nuevoContacto.apellido,
                             telefono: this.nuevoContacto.telefono,
                             twitter: twitterLink
                         });
 
                         // Limpiar el formulario
                         this.nuevoContacto.nombre = '';
+                        this.nuevoContacto.apellido = '';
                         this.nuevoContacto.email = '';
                         this.nuevoContacto.telefono = '';
                         this.nuevoContacto.twitter = '';

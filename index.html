@@ -16,6 +16,29 @@
         <!-- Vue.js -->
         <script type="text/javascript" src="js/vue.js"></script>
 
+        <script type="module">
+            // Importa Firebase desde el CDN
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+            import { getFirestore, collection, getDocs, addDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
+            // Configuración de Firebase (tu configuración actual)
+            const firebaseConfig = {
+                apiKey: "AIzaSyCHTCjVWRmVx_AW6CeKLxoeQGfHvhFMoaI",
+                authDomain: "agendavue-7bb62.firebaseapp.com",
+                projectId: "agendavue-7bb62",
+                storageBucket: "agendavue-7bb62.firebasestorage.app",
+                messagingSenderId: "40314208916",
+                appId: "1:40314208916:web:c32fb6f2acf6b1bfb02a81"
+            };
+
+            // Inicializa Firebase y Firestore
+            const app = initializeApp(firebaseConfig);
+            const db = getFirestore(app);
+
+            // Exporta db para usarlo en Vue
+            window.db = db;
+        </script>
+
     </head>
 
     <body id="page-top" class="index">
@@ -124,9 +147,6 @@
         <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
         <script type="text/javascript">
-            import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
-            import { db } from './firebase';
-
             new Vue({
                 el: '#app',
                 data: {
@@ -141,10 +161,11 @@
                 methods: {
                     async cargarContactos() {
                         try {
-                            const querySnapshot = await getDocs(collection(db, 'contactos'));
+                            // Obtiene los contactos desde Firestore
+                            const querySnapshot = await getDocs(collection(window.db, 'contactos'));
                             this.contactos = querySnapshot.docs.map(doc => ({
-                                id: doc.id, // Identificador único
-                                ...doc.data() // Los datos del contacto
+                                id: doc.id, // ID del documento
+                                ...doc.data() // Datos del contacto
                             }));
                         } catch (error) {
                             console.error('Error al cargar los contactos:', error);
@@ -152,65 +173,61 @@
                     },
                     async agregarContacto() {
                         try {
-                            // Prepara el enlace de Twitter (si existe)
-                            let twitterHandle = this.nuevoContacto.twitter.replace('@', '').trim();
-                            let twitterLink = twitterHandle 
-                                ? `<a class="twitter-follow-button" href="https://twitter.com/${twitterHandle}" target="_blank"></a>` 
+                            // Crea el enlace de Twitter si es necesario
+                            const twitterHandle = this.nuevoContacto.twitter.replace('@', '').trim();
+                            const twitterLink = twitterHandle
+                                ? `<a class="twitter-follow-button" href="https://twitter.com/${twitterHandle}" target="_blank"></a>`
                                 : '';
 
-                            // Guarda el nuevo contacto en Firestore
-                            await addDoc(collection(db, 'contactos'), {
+                            // Añade un nuevo contacto a Firestore
+                            await addDoc(collection(window.db, 'contactos'), {
                                 nombre: this.nuevoContacto.nombre,
                                 email: this.nuevoContacto.email,
                                 telefono: this.nuevoContacto.telefono,
                                 twitter: twitterLink
                             });
 
-                            // Recarga los contactos
+                            // Recarga la lista de contactos
                             this.cargarContactos();
 
                             // Limpia el formulario
                             this.nuevoContacto = { nombre: '', email: '', telefono: '', twitter: '' };
-
                         } catch (error) {
                             console.error('Error al agregar el contacto:', error);
                         }
                     },
                     async borrarContacto(contactoId) {
                         try {
-                            // Borra el documento de Firestore
-                            await deleteDoc(doc(db, 'contactos', contactoId));
+                            // Borra el contacto de Firestore
+                            await deleteDoc(doc(window.db, 'contactos', contactoId));
 
-                            // Recarga los contactos
+                            // Recarga la lista de contactos
                             this.cargarContactos();
                         } catch (error) {
                             console.error('Error al borrar el contacto:', error);
                         }
+                    },
+                    async probarConexion() {
+                        try {
+                            const querySnapshot = await getDocs(collection(window.db, 'contactos'));
+                            console.log('Conexión exitosa. Datos obtenidos:');
+                            querySnapshot.forEach(doc => {
+                                console.log(doc.id, ' => ', doc.data());
+                            });
+                            alert('Conexión con Firestore exitosa. Revisa la consola para ver los datos.');
+                        } catch (error) {
+                            console.error('Error al conectar con Firestore:', error);
+                            alert('Error al conectar con Firestore. Verifica la configuración.');
+                        }
                     }
                 },
                 mounted() {
-                    // Carga los contactos al iniciar la aplicación
+                    // Carga los contactos cuando la aplicación Vue esté lista
                     this.cargarContactos();
-                },
-
-                    async probarConexion() {
-                    try {
-                        const querySnapshot = await getDocs(collection(db, 'contactos')); // Cambia 'contactos' por cualquier colección que tengas.
-                        console.log('Conexión exitosa. Datos obtenidos:');
-                        querySnapshot.forEach((doc) => {
-                            console.log(doc.id, ' => ', doc.data());
-                        });
-                        alert('Conexión con Firestore exitosa. Revisa la consola para ver los datos.');
-                    } catch (error) {
-                        console.error('Error al conectar con Firestore:', error);
-                        alert('Error al conectar con Firestore. Verifica la configuración.');
-                    }
                 }
-
-
-
-                 });
+            });
         </script>
+
 
 
 

@@ -27,6 +27,8 @@
         
             <div class="intro-text">
                 <span class="name">MI AGENDA VUE</span>
+                <button @click="probarConexion" class="btn btn-primary">Probar Conexión</button>
+
             </div>
             
         </header>
@@ -189,7 +191,24 @@
                 mounted() {
                     // Carga los contactos al iniciar la aplicación
                     this.cargarContactos();
+                },
+
+                    async probarConexion() {
+                    try {
+                        const querySnapshot = await getDocs(collection(db, 'contactos')); // Cambia 'contactos' por cualquier colección que tengas.
+                        console.log('Conexión exitosa. Datos obtenidos:');
+                        querySnapshot.forEach((doc) => {
+                            console.log(doc.id, ' => ', doc.data());
+                        });
+                        alert('Conexión con Firestore exitosa. Revisa la consola para ver los datos.');
+                    } catch (error) {
+                        console.error('Error al conectar con Firestore:', error);
+                        alert('Error al conectar con Firestore. Verifica la configuración.');
+                    }
                 }
+
+
+
                  });
         </script>
 

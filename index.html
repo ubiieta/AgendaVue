@@ -79,19 +79,19 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(contacto, index) in contactos" :key="index">
+                        <tr v-for="contacto in contactos" :key="contacto.id">
                             <td>{{ contacto.nombre }}</td>
                             <td>{{ contacto.email }}</td>
                             <td>{{ contacto.telefono }}</td>
                             <td v-html="contacto.twitter"></td>
-                            
                             <td>
-                                <button class="btn btn-danger btn-sm" @click="borrarContacto(index)">
+                                <button class="btn btn-danger btn-sm" @click="borrarContacto(contacto.id)">
                                     <img src="img/eliminar.png" alt="Eliminar" width="20" height="20">
                                 </button>
                             </td>
                         </tr>
                     </tbody>
+
                 </table>
             </div>
 

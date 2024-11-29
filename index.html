@@ -74,7 +74,7 @@
                             <th>Email</th>
                             <th>Teléfono</th>
                             <th>Twitter</th>
-                           
+                            <th>Facebook</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -122,21 +122,13 @@
         <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
         <script type="text/javascript">
+            import { collection, addDoc, getDocs, deleteDoc, doc } from 'firebase/firestore';
+            import { db } from './firebase';
+
             new Vue({
                 el: '#app',
                 data: {
-                    contactos: [
-                        { 
-                            nombre: 'Aitor', 
-                            email: 'a.ubieta@opendeusto.es', 
-                            telefono: '333333333', 
-                            twitter: '<a class="twitter-follow-button" href="https://twitter.com/ubiieta" target="_blank"></a>' 
-                        },
-                        { nombre: 'Eneko', email: 'eneko.alvarez@opendeusto.es', telefono: '444444444', twitter: '' },
-                        { nombre: 'Oihane', email: 'oihane.carrillo@opendeusto.es', telefono: '555555555', 
-                            twitter:  '<a class="twitter-follow-button" href="https://twitter.com/oicaher" target="_blank"></a>' },
-                        { nombre: 'Maialen', email: 'maialen.blanco@opendeusto.es', telefono: '666666666', twitter: '' }
-                    ],
+                    contactos: [], // Lista de contactos
                     nuevoContacto: {
                         nombre: '',
                         email: '',
@@ -145,42 +137,62 @@
                     }
                 },
                 methods: {
-                    agregarContacto() {
-
-                        // Elimina el @ si está presente y genera el enlace de Twitter
-                        let twitterHandle = this.nuevoContacto.twitter.replace('@', '').trim();
-                        let twitterLink = twitterHandle 
-                            ? `<a class="twitter-follow-button" href="https://twitter.com/${twitterHandle}" target="_blank"></a>` 
-                            : '';
-
-
-                        // Recarga los botones
-                        twttr.widgets.load()
-
-
-
-                        // Añadir el contacto
-                        this.contactos.push({
-                            nombre: this.nuevoContacto.nombre,
-                            email: this.nuevoContacto.email,
-                            telefono: this.nuevoContacto.telefono,
-                            twitter: twitterLink
-                        });
-
-                        // Limpiar el formulario
-                        this.nuevoContacto.nombre = '';
-                        this.nuevoContacto.email = '';
-                        this.nuevoContacto.telefono = '';
-                        this.nuevoContacto.twitter = '';
+                    async cargarContactos() {
+                        try {
+                            const querySnapshot = await getDocs(collection(db, 'contactos'));
+                            this.contactos = querySnapshot.docs.map(doc => ({
+                                id: doc.id, // Identificador único
+                                ...doc.data() // Los datos del contacto
+                            }));
+                        } catch (error) {
+                            console.error('Error al cargar los contactos:', error);
+                        }
                     },
-                    borrarContacto(index) {
-                        this.contactos.splice(index, 1);
-                        // Recarga los botones
-                        twttr.widgets.load()
+                    async agregarContacto() {
+                        try {
+                            // Prepara el enlace de Twitter (si existe)
+                            let twitterHandle = this.nuevoContacto.twitter.replace('@', '').trim();
+                            let twitterLink = twitterHandle 
+                                ? `<a class="twitter-follow-button" href="https://twitter.com/${twitterHandle}" target="_blank"></a>` 
+                                : '';
+
+                            // Guarda el nuevo contacto en Firestore
+                            await addDoc(collection(db, 'contactos'), {
+                                nombre: this.nuevoContacto.nombre,
+                                email: this.nuevoContacto.email,
+                                telefono: this.nuevoContacto.telefono,
+                                twitter: twitterLink
+                            });
+
+                            // Recarga los contactos
+                            this.cargarContactos();
+
+                            // Limpia el formulario
+                            this.nuevoContacto = { nombre: '', email: '', telefono: '', twitter: '' };
+
+                        } catch (error) {
+                            console.error('Error al agregar el contacto:', error);
+                        }
+                    },
+                    async borrarContacto(contactoId) {
+                        try {
+                            // Borra el documento de Firestore
+                            await deleteDoc(doc(db, 'contactos', contactoId));
+
+                            // Recarga los contactos
+                            this.cargarContactos();
+                        } catch (error) {
+                            console.error('Error al borrar el contacto:', error);
+                        }
                     }
+                },
+                mounted() {
+                    // Carga los contactos al iniciar la aplicación
+                    this.cargarContactos();
                 }
-            });
+                 });
         </script>
+
 
 
     </body>
